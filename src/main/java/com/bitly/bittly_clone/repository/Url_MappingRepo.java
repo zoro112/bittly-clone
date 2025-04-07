@@ -1,5 +1,6 @@
 package com.bitly.bittly_clone.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +21,6 @@ public interface Url_MappingRepo extends JpaRepository<UrlMapping, Long> {
 
     List<UrlMapping> findByUser(User user);
 
-    UrlMapping findByShortUrl(String shortUrl); // Find URL mapping by short URL
+    UrlMapping findByShortUrl(String shortUrl); // Find URL mapping by short URL// Find URL mapping by short URL between
+                                                // two dates
 }

@@ -1,9 +1,14 @@
 package com.bitly.bittly_clone.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.bitly.bittly_clone.dto.ClickUrlDTO;
@@ -27,10 +32,7 @@ public class Url_Mapping_Service {
     private final ModelMapper modelMapper;// ModelMapper for object mapping
     private final UserService userService;// Service to handle user-related operations
     private final Click_Repo clickRepo; // Repository for Click_url entity
-    // private final Url_MappingRepo urlMappingRepo; // Repository for Url_mapping
-    // entity
 
-    // Add methods to handle URL mapping operations here
     // For example, you can create, update, delete, or retrieve URL mappings
     public UrlMappingDTO getUrlMappingById(Long id) {
         // Implement the logic to retrieve a URL mapping by ID from the database
@@ -91,23 +93,85 @@ public class Url_Mapping_Service {
                                                                                                                   // DTOs
     }
 
-    public List<ClickUrlDTO> getUrlAnalytics(String shortUrl, String name) {
+    /**
+     * Retrieves the URL analytics for a given short URL and user.
+     *
+     * @param shortUrl  The short URL to retrieve analytics for.
+     * @param name      The username of the user requesting the analytics.
+     * @param startDate The start date for the analytics period.
+     * @param endDate   The end date for the analytics period.
+     * @return A list of ClickUrlDTO objects containing the click analytics.
+     **/
+
+    public List<ClickUrlDTO> getUrlAnalytics(String shortUrl, String name, LocalDate startDate, LocalDate endDate) {
 
         UrlMapping urlMapping = urlMappingRepo.findByShortUrl(shortUrl); // Retrieve the URL mapping by short URL
         if (urlMapping == null) {
             throw new RuntimeException("URL mapping not found for short URL: " + shortUrl); // Handle not found case
         }
-        System.out.println("Username " + urlMapping.getUser().getUsername() + "   " + name);
         if (!urlMapping.getUser().getUsername().equals(name)) {
-            System.out.println("Unauthorized access attempt by user: " + name); // Log unauthorized access attempt
             throw new RuntimeException("You are not authorized to view this URL mapping"); // Handle unauthorized access
         }
-        List<Click_url> clickUrls = clickRepo.findByUrlMapping(urlMapping); // Retrieve all click URLs associated with
-                                                                            // the URL mapping
-        return clickUrls.stream().map(clickUrl -> modelMapper.map(clickUrl, ClickUrlDTO.class)).toList(); // Convert to
-                                                                                                          // DTOs
+        List<Click_url> clickUrls = clickRepo.findByUrlMappingAndClickTimeBetween(urlMapping, startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay()); // Retrieve all click URLs associated with
+                                                     // the URL mapping
+        if (clickUrls.isEmpty()) {
+            return List.of(); // Return an empty list if no clicks are found
+        }
+        // Group clicks by date and count them
+        // Collect the click URLs into a list of ClickUrlDTO objects
+        return clickUrls.stream()
+                .collect(
+                        Collectors.groupingBy(clickUrl -> clickUrl.getClickTime().toLocalDate(), Collectors.counting()))
+                .entrySet().stream().map(entry -> {
+                    ClickUrlDTO clickUrlDTO = new ClickUrlDTO(); // Create a new ClickUrlDTO object
+                    clickUrlDTO.setClickTime(entry.getKey().atStartOfDay()); // Set the date of the click
+                    clickUrlDTO.setCount(entry.getValue()); // Set the count of clicks for that date
+                    return clickUrlDTO; // Return the ClickUrlDTO object
+                }
+
+                ).toList(); // Group clicks by date and count them
     }
 
+    /**
+     * Retrieves all URL analytics for a given user within a specified date range.
+     *
+     * @param username  The username of the user requesting the analytics.
+     * @param startDate The start date for the analytics period.
+     * @param endDate   The end date for the analytics period.
+     * @return A list of ClickUrlDTO objects containing the click analytics.
+     **/
+
+    public List<ClickUrlDTO> getAllUrlAnalytics(String username, LocalDate startDate, LocalDate endDate) {
+        User user = userService.getUserByUsername(username); // Retrieve the user by username
+        if (!user.getUsername().equals(username)) {
+            throw new RuntimeException("You are not authorized to view this URL mapping"); // Handle unauthorized access
+        }
+        List<UrlMapping> urlMappings = urlMappingRepo.findByUser(user); // Retrieve all URL mappings for the user
+        if (urlMappings.isEmpty()) {
+            return List.of(); // Return an empty list if no mappings are found
+        }
+        // Retrieve all click URLs associated with the URL mappings
+        List<Click_url> clicksUrl = clickRepo.findByUrlMappingInAndClickTimeBetween(urlMappings,
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay());
+        return clicksUrl.stream()
+                .collect(
+                        Collectors.groupingBy(clickUrl -> clickUrl.getClickTime().toLocalDate(), Collectors.counting()))
+                .entrySet().stream().map(entry -> {
+                    ClickUrlDTO clickUrlDTO = new ClickUrlDTO(); // Create a new ClickUrlDTO object
+                    clickUrlDTO.setClickTime(entry.getKey().atStartOfDay()); // Set the date of the click
+                    clickUrlDTO.setCount(entry.getValue()); // Set the count of clicks for that date
+                    return clickUrlDTO; // Return the ClickUrlDTO object
+                }).toList(); // Group clicks by date and count them
+    }
+
+    /**
+     * Retrieves the original URL for a given shortened URL.
+     *
+     * @param shortenedUrl The shortened URL to retrieve the original URL for.
+     * @return The original URL if found, or null if not found.
+     */
     public String getOriginalUrl(String shortenedUrl) {
         UrlMapping urlMapping = urlMappingRepo.findByShortUrl(shortenedUrl); // Retrieve the URL mapping by short URL
         if (urlMapping != null) {

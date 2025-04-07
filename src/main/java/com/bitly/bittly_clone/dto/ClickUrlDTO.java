@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClickUrlDTO {
-    private Long id;
     private LocalDateTime clickTime;
+    private Long count;
 }
