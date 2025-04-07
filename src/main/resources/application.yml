@@ -1,0 +1,19 @@
+spring:
+    app:
+        name: bitly-clone
+    datasource:
+        url: jdbc:mysql://localhost:3306/bitty
+        username: root
+        password: 
+    jpa:
+        hibernate:
+            ddl-auto: update
+    properties:
+        hibernate:
+            dialect: org.hibernate.dialect.MySQL8Dialect
+
+jwt:
+    secret:
+        key: 47207512d85e4b3554a7815cd9e9d77a627811f9a907247af9abc943725b225ddb77daba2a76759f174d0de7496af3581ab6901b23b79117afca10a1c1497e04
+    expiration:
+        time: 1
