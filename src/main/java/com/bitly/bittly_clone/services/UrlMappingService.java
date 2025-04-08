@@ -1,14 +1,10 @@
 package com.bitly.bittly_clone.services;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.bitly.bittly_clone.dto.ClickUrlDTO;
@@ -18,7 +14,7 @@ import com.bitly.bittly_clone.model.Click_url;
 import com.bitly.bittly_clone.model.UrlMapping;
 import com.bitly.bittly_clone.model.User;
 import com.bitly.bittly_clone.repository.Click_Repo;
-import com.bitly.bittly_clone.repository.Url_MappingRepo;
+import com.bitly.bittly_clone.repository.UrlMappingRepo;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +23,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Data
 
-public class Url_Mapping_Service {
-    private final Url_MappingRepo urlMappingRepo;// Repository for Url_mapping entity
+public class UrlMappingService {
+    private final UrlMappingRepo urlMappingRepo;// Repository for Url_mapping entity
     private final ModelMapper modelMapper;// ModelMapper for object mapping
     private final UserService userService;// Service to handle user-related operations
     private final Click_Repo clickRepo; // Repository for Click_url entity

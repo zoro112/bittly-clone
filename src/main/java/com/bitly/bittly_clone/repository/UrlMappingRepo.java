@@ -11,7 +11,7 @@ import com.bitly.bittly_clone.model.UrlMapping;
 import com.bitly.bittly_clone.model.User;
 
 @Repository
-public interface Url_MappingRepo extends JpaRepository<UrlMapping, Long> {
+public interface UrlMappingRepo extends JpaRepository<UrlMapping, Long> {
 
     // Custom query methods can be defined here if needed
     // For example, you can find URL mappings by user ID or short URL

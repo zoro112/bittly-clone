@@ -5,8 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.bitly.bittly_clone.services.Url_Mapping_Service;
+import com.bitly.bittly_clone.services.UrlMappingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UrlRedirectController {
 
-    private final Url_Mapping_Service urlMappingService;
+    private final UrlMappingService urlMappingService;
 
     @GetMapping("/{shortenedUrl}")
     public ResponseEntity<Void> redirectToOriginalUrl(@PathVariable String shortenedUrl) {

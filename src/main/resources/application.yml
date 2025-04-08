@@ -2,7 +2,7 @@ spring:
     app:
         name: bitly-clone
     datasource:
-        url: jdbc:mysql://localhost:3306/bitty
+        url: jdbc:mysql://my-db1:3306/bitty
         username: root
         password: 
     jpa:

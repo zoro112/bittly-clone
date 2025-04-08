@@ -3,22 +3,15 @@ package com.bitly.bittly_clone.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.bitly.bittly_clone.dto.ClickUrlDTO;
 import com.bitly.bittly_clone.dto.UrlMappingCreateDTO;
 import com.bitly.bittly_clone.dto.UrlMappingDTO;
-import com.bitly.bittly_clone.services.Url_Mapping_Service;
-
-import jakarta.websocket.server.PathParam;
+import com.bitly.bittly_clone.services.UrlMappingService;
 import lombok.RequiredArgsConstructor;
-
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/url")
 @RequiredArgsConstructor
 public class UrlMappingControl {
-    private final Url_Mapping_Service urlMappingService;
+    private final UrlMappingService urlMappingService;
     // Add methods to handle URL mapping operations here
 
     // For example, you can create, update, delete, or retrieve URL mappings
@@ -40,7 +33,6 @@ public class UrlMappingControl {
     public ResponseEntity<UrlMappingDTO> createUrlMapping(@RequestBody UrlMappingCreateDTO urlMappingCreateDTO,
             Principal principal) {
         // Implement the logic to save a URL mapping to the database
-        urlMappingService.createUrlMapping(urlMappingCreateDTO, principal.getName());
         return ResponseEntity.ok(urlMappingService.createUrlMapping(urlMappingCreateDTO, principal.getName()));
     }
 
