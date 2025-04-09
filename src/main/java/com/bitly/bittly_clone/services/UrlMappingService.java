@@ -16,6 +16,10 @@ import com.bitly.bittly_clone.model.User;
 import com.bitly.bittly_clone.repository.Click_Repo;
 import com.bitly.bittly_clone.repository.UrlMappingRepo;
 
+import io.ipgeolocation.api.Geolocation;
+import io.ipgeolocation.api.GeolocationParams;
+import io.ipgeolocation.api.IPGeolocationAPI;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +32,7 @@ public class UrlMappingService {
     private final ModelMapper modelMapper;// ModelMapper for object mapping
     private final UserService userService;// Service to handle user-related operations
     private final Click_Repo clickRepo; // Repository for Click_url entity
+    private final IPGeolocationAPI ipGeolocationAPI; // Geolocation API for IP address geolocation
 
     // For example, you can create, update, delete, or retrieve URL mappings
     public UrlMappingDTO getUrlMappingById(Long id) {
@@ -168,12 +173,26 @@ public class UrlMappingService {
      * @param shortenedUrl The shortened URL to retrieve the original URL for.
      * @return The original URL if found, or null if not found.
      */
-    public String getOriginalUrl(String shortenedUrl) {
+    public String getOriginalUrl(String shortenedUrl, HttpServletRequest request) {
         UrlMapping urlMapping = urlMappingRepo.findByShortUrl(shortenedUrl); // Retrieve the URL mapping by short URL
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        } else {
+            // In case of multiple proxies, take the first IP
+            ipAddress = ipAddress.split(",")[0];
+        }
+        GeolocationParams geoParams = new GeolocationParams();
+        geoParams.setIPAddress(ipAddress);// Set the IP address for geolocation
+        geoParams.setFields("country_name"); // Set the fields to retrieve
+        Geolocation geolocation = ipGeolocationAPI.getGeolocation(geoParams); // a.getGeolocation(geoParams);
+        String country = geolocation.getCountryName(); // Get the country name from the geolocation response
+
         if (urlMapping != null) {
             Click_url clickUrl = new Click_url(); // Create a new Click_url object
             clickUrl.setUrlMapping(urlMapping); // Set the URL mapping
             urlMapping.setClicks(urlMapping.getClicks() + 1); // Increment the click count
+            clickUrl.setCountry(country); // Set the country of the click
             clickRepo.save(clickUrl); // Save the click URL to the database
             urlMappingRepo.save(urlMapping); // Save the updated URL mapping to the database
             return urlMapping.getLongUrl(); // Return the original URL if found

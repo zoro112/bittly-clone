@@ -22,6 +22,7 @@ public class Click_url {
     private Long id;
     @CreationTimestamp
     private LocalDateTime clickTime;
+    private String country;
     @ManyToOne
     @JoinColumn(name = "url_mapping_id", nullable = false)
     private UrlMapping urlMapping;

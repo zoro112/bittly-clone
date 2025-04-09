@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.bitly.bittly_clone.services.UrlMappingService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -16,13 +17,13 @@ public class UrlRedirectController {
     private final UrlMappingService urlMappingService;
 
     @GetMapping("/{shortenedUrl}")
-    public ResponseEntity<Void> redirectToOriginalUrl(@PathVariable String shortenedUrl) {
+    public ResponseEntity<Void> redirectToOriginalUrl(@PathVariable String shortenedUrl, HttpServletRequest request) {
         // Implement the logic to redirect to the original URL based on the shortened
         // URL
         // You can use the Url_Mapping_Service to retrieve the original URL and perform
         // the redirect
         // Check if the shortened URL exists in the database
-        String originalUrl = urlMappingService.getOriginalUrl(shortenedUrl);
+        String originalUrl = urlMappingService.getOriginalUrl(shortenedUrl, request);
         if (originalUrl == null) {
             return ResponseEntity.notFound().build(); // 404 Not Found
         }

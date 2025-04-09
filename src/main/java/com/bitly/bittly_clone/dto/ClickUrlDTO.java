@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class ClickUrlDTO {
     private LocalDateTime clickTime;
     private Long count;
+    private String country;
 }
